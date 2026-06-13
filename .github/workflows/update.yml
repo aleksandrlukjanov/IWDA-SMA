@@ -1,0 +1,45 @@
+name: Atnaujinti screenerį
+
+on:
+  schedule:
+    # Kiekvieną darbo dieną 18:00 UTC (po Euronext uždarymo žiemą ir vasarą)
+    - cron: "0 18 * * 1-5"
+  workflow_dispatch:        # leidžia paleisti rankiniu būdu iš Actions skirtuko
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Vienu metu tik vienas deploy'as
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Įdiegti priklausomybes
+        run: pip install yfinance
+
+      - name: Sugeneruoti puslapį
+        run: python build.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: "site"
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
