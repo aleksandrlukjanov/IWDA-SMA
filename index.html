@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IWDA · 8-mėn. SMA screeneris</title>
+
+<!-- ===== Open Graph: kad Substack'e nuoroda virstų gražia kortele ===== -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="IWDA · 8-mėn. SMA screeneris">
+<meta property="og:description" content="MSCI World Core (IWDA) timing screeneris: dabartinė kaina vs 8 mėnesių slankusis vidurkis → HOLD / BUY arba SELL CORE / DCA.">
+<!-- Po hostingo įrašyk savo TIKRĄ adresą: -->
+<meta property="og:url" content="https://USERNAME.github.io/REPO/">
+<!-- Nebūtina, bet kortelė gražesnė: įkelk 1200x630 preview.png į repo ir atkomentuok: -->
+<!-- <meta property="og:image" content="https://USERNAME.github.io/REPO/preview.png"> -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="IWDA · 8-mėn. SMA screeneris">
+<meta name="twitter:description" content="Dabartinė kaina vs 8 mėn. slankusis vidurkis → HOLD / BUY arba SELL CORE / DCA.">
+
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#131e34;
+    --panel-2:#0f1830;
+    --line:#243352;
+    --txt:#e8edf5;
+    --muted:#8a98b0;
+    --blue:#2563a8;
+    --blue-lt:#4a90d9;
+    --green:#2e9e5b;
+    --green-lt:#38c477;
+    --red:#e05a4d;
+    --amber:#e0a23a;
+    --mono:"SF Mono","JetBrains Mono","Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;padding:32px 18px 60px;
+    background:
+      radial-gradient(900px 500px at 80% -10%, rgba(37,99,168,.18), transparent 60%),
+      var(--bg);
+    color:var(--txt);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+
+  header.top{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue-lt);}
+  h1{font-size:25px;font-weight:650;margin:2px 0 0;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;}
+  .asof{font-family:var(--mono);font-size:11px;color:var(--muted);}
+
+  .verdict{
+    margin-top:22px;border-radius:18px;border:1px solid var(--line);
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    padding:26px 26px 22px;position:relative;overflow:hidden;
+  }
+  .verdict::before{content:"";position:absolute;inset:0;width:5px;background:var(--green);}
+  .verdict.sell::before{background:var(--red);}
+  .v-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .signal{font-size:46px;font-weight:720;letter-spacing:-.02em;line-height:1.05;margin:6px 0 2px;}
+  .signal.buy{color:var(--green-lt);}
+  .signal.sell{color:var(--red);}
+  .v-note{color:var(--muted);font-size:13.5px;max-width:46ch;}
+
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:22px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .metric{background:var(--panel);padding:15px 16px;}
+  .m-k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .m-v{font-family:var(--mono);font-size:22px;font-weight:600;margin-top:5px;}
+  .m-v.pos{color:var(--green-lt);}
+  .m-v.neg{color:var(--red);}
+
+  .gauge-card{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;}
+  .gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;}
+  .gauge-head .t{font-size:13px;color:var(--muted);}
+  .gauge-head .pct{font-family:var(--mono);font-size:13px;}
+  .track{position:relative;height:8px;border-radius:6px;background:linear-gradient(90deg,#3a2230,#2a2f44 50%,#1f3a2c);}
+  .mid{position:absolute;top:-6px;bottom:-6px;width:2px;left:50%;transform:translateX(-50%);background:var(--blue-lt);border-radius:2px;}
+  .mid-lab{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--blue-lt);white-space:nowrap;}
+  .dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid var(--bg);transition:left .35s cubic-bezier(.4,0,.2,1),background .2s;box-shadow:0 0 0 1px var(--line);}
+  .scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:10px;}
+
+  .chart-card{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px 12px;}
+  .chart-card h3{font-size:13px;color:var(--muted);font-weight:500;margin:0 0 14px;letter-spacing:.02em;}
+  svg{width:100%;height:auto;display:block;}
+  .legend{display:flex;gap:18px;margin-top:8px;font-size:11.5px;color:var(--muted);font-family:var(--mono);}
+  .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px;}
+
+  .inputs{margin-top:26px;}
+  .inputs h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 14px;}
+  .price-now{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:16px;flex-wrap:wrap;}
+  .price-now label{font-size:13px;color:var(--muted);}
+  input[type=number]{
+    font-family:var(--mono);font-size:16px;background:var(--panel-2);color:var(--txt);
+    border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:118px;text-align:right;
+  }
+  input[type=number]:focus{outline:none;border-color:var(--blue-lt);box-shadow:0 0 0 3px rgba(74,144,217,.18);}
+  .grid-closes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .cell{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 11px;}
+  .cell span{display:block;font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;}
+  .cell input{width:100%;font-size:14px;padding:7px 8px;}
+  .reset{margin-top:14px;background:transparent;border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;}
+  .reset:hover{border-color:var(--blue-lt);color:var(--txt);}
+
+  .rule{margin:30px 0 0;font-size:13px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:18px;}
+  .rule b{color:var(--txt);font-weight:600;}
+  .disc{margin-top:18px;font-size:11.5px;color:#6c7890;line-height:1.55;border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:rgba(255,255,255,.015);}
+
+  @media(max-width:560px){
+    .metrics{grid-template-columns:1fr;}
+    .grid-closes{grid-template-columns:repeat(2,1fr);}
+    .signal{font-size:38px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="eyebrow">Timing screeneris</div>
+      <h1>IWDA · 8-mėn. SMA</h1>
+      <div class="sub">iShares Core MSCI World UCITS ETF (Acc) · EUR · Euronext Amsterdam</div>
+    </div>
+    <div class="asof" id="asof">Duomenys: —</div>
+  </header>
+
+  <section class="verdict" id="verdict">
+    <div class="v-label">Verdiktas</div>
+    <div class="signal buy" id="signal">HOLD / BUY</div>
+    <div class="v-note" id="vnote"></div>
+  </section>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="m-k">Dabartinė kaina</div>
+      <div class="m-v" id="mCur">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-k">8-mėn. SMA</div>
+      <div class="m-v" id="mSma">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-k">Nuokrypis nuo SMA</div>
+      <div class="m-v" id="mDev">—</div>
+    </div>
+  </div>
+
+  <div class="gauge-card">
+    <div class="gauge-head">
+      <div class="t">Kaina prieš 8-mėn. vidurkį</div>
+      <div class="pct" id="gPct"></div>
+    </div>
+    <div class="track">
+      <div class="mid"></div>
+      <div class="mid-lab">SMA</div>
+      <div class="dot" id="dot"></div>
+    </div>
+    <div class="scale"><span>−15%</span><span>0%</span><span>+15%</span></div>
+  </div>
+
+  <div class="chart-card">
+    <h3>Mėnesių uždarymai vs SMA</h3>
+    <svg id="chart" viewBox="0 0 680 200" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend">
+      <span><i style="background:var(--green-lt)"></i>Mėnesio uždarymas</span>
+      <span><i style="background:var(--blue-lt)"></i>8-mėn. SMA</span>
+    </div>
+  </div>
+
+  <section class="inputs">
+    <h2>Įvestys — redaguojama</h2>
+    <div class="price-now">
+      <label for="cur">Dabartinė kaina (€)</label>
+      <input type="number" id="cur" step="0.01">
+      <span class="sub" style="margin:0">Pakeisk ir signalas persiskaičiuos automatiškai.</span>
+    </div>
+    <div class="grid-closes" id="closes"></div>
+    <button class="reset" id="reset">↺ Atstatyti pradinius duomenis</button>
+  </section>
+
+  <p class="rule">
+    <b>Taisyklė.</b> Skaičiuojamas paskutinių <b>8 užbaigtų mėnesių uždarymo kainų</b> vidurkis.
+    Jei dabartinė kaina <b>virš</b> vidurkio → <b>HOLD / BUY</b> (tendencija aukštyn, laikomės / pildome poziciją).
+    Jei <b>žemiau</b> → <b>SELL CORE / DCA</b> (tendencija žemyn — mažinti poziciją arba pereiti prie
+    vidurkinimo pirkimais).
+  </p>
+
+  <div class="disc">
+    Tai edukacinė ir informacinė priemonė, paremta mechaniniu slankiojo vidurkio (8 mėn.) algoritmu.
+    Tai nėra individuali investavimo, finansinė, mokestinė ar teisinė rekomendacija ir neatsižvelgia į tavo
+    asmeninę finansinę padėtį. Istoriniai rezultatai negarantuoja ateities grąžos. Investuojant į vertybinius
+    popierius galima prarasti dalį ar visą investuotą kapitalą. Prieš priimdamas sprendimą įvertink riziką
+    pats arba pasitark su licencijuotu specialistu. Kainų šaltinis: Euronext Amsterdam (IWDA.AS), mėnesių
+    uždarymai; duomenys gali būti uždelsti.
+  </div>
+
+</div>
+
+<script>
+  /* DATA-START */
+  const DATA = {
+    "asof": "2026-06-12",
+    "cur": 122.81,
+    "closes": [
+      ["2025-10", 111.78],
+      ["2025-11", 111.40],
+      ["2025-12", 111.53],
+      ["2026-01", 112.19],
+      ["2026-02", 113.58],
+      ["2026-03", 108.06],
+      ["2026-04", 117.06],
+      ["2026-05", 123.38]
+    ]
+  };
+  /* DATA-END */
+
+  const DEFAULT = { cur: DATA.cur, closes: DATA.closes };
+  let closes = DEFAULT.closes.map(c => [...c]);
+
+  const $ = id => document.getElementById(id);
+  const eur = v => "€" + v.toFixed(2);
+
+  function buildCloseInputs(){
+    const wrap = $("closes");
+    wrap.innerHTML = "";
+    closes.forEach((c, i) => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.innerHTML = `<span>${c[0]}</span>`;
+      const inp = document.createElement("input");
+      inp.type = "number"; inp.step = "0.01"; inp.value = c[1];
+      inp.addEventListener("input", () => {
+        const v = parseFloat(inp.value);
+        if(!isNaN(v)) { closes[i][1] = v; recalc(); }
+      });
+      cell.appendChild(inp);
+      wrap.appendChild(cell);
+    });
+  }
+
+  function recalc(){
+    const vals = closes.map(c => c[1]);
+    const sma = vals.reduce((a,b)=>a+b,0) / vals.length;
+    const cur = parseFloat($("cur").value) || 0;
+    const dev = (cur/sma - 1) * 100;
+    const buy = cur >= sma;
+
+    const sig = $("signal"), verd = $("verdict"), note = $("vnote");
+    sig.textContent = buy ? "HOLD / BUY" : "SELL CORE / DCA";
+    sig.className = "signal " + (buy ? "buy" : "sell");
+    verd.className = "verdict" + (buy ? "" : " sell");
+    note.textContent = buy
+      ? `Kaina ${dev.toFixed(1).replace('-','')}% virš 8-mėn. vidurkio — tendencija aukštyn, pozicija laikoma arba pildoma.`
+      : `Kaina ${Math.abs(dev).toFixed(1)}% žemiau 8-mėn. vidurkio — tendencija žemyn, signalas mažinti CORE poziciją arba pirkti vidurkinant (DCA).`;
+
+    $("mCur").textContent = eur(cur);
+    $("mSma").textContent = eur(sma);
+    const md = $("mDev");
+    md.textContent = (dev>=0?"+":"") + dev.toFixed(1) + "%";
+    md.className = "m-v " + (dev>=0 ? "pos" : "neg");
+
+    $("gPct").textContent = (dev>=0?"+":"") + dev.toFixed(1) + "% nuo SMA";
+    const clamped = Math.max(-15, Math.min(15, dev));
+    const pos = 50 + (clamped/15)*50;
+    const dot = $("dot");
+    dot.style.left = pos + "%";
+    dot.style.background = buy ? "var(--green-lt)" : "var(--red)";
+
+    drawChart(vals, sma, cur);
+  }
+
+  function drawChart(vals, sma, cur){
+    const W=680, H=200, padL=46, padR=14, padT=16, padB=28;
+    const series = [...vals, cur];
+    const lab = [...closes.map(c=>c[0].slice(5)), "dabar"];
+    const lo = Math.min(...series, sma), hi = Math.max(...series, sma);
+    const span = (hi-lo)||1, min = lo - span*0.18, max = hi + span*0.18;
+    const x = i => padL + i*(W-padL-padR)/(series.length-1);
+    const y = v => padT + (max-v)/(max-min)*(H-padT-padB);
+
+    let bars = "";
+    series.forEach((v,i)=>{
+      const isCur = i===series.length-1;
+      const col = isCur ? (cur>=sma ? "var(--green-lt)":"var(--red)") : "var(--green)";
+      const cx = x(i), cy = y(v);
+      bars += `<line x1="${cx}" y1="${y(min)}" x2="${cx}" y2="${cy}" stroke="${col}" stroke-width="2" opacity="${isCur?1:.55}"/>`;
+      bars += `<circle cx="${cx}" cy="${cy}" r="${isCur?5:3.5}" fill="${col}"/>`;
+      bars += `<text x="${cx}" y="${H-9}" fill="var(--muted)" font-size="10" font-family="var(--mono)" text-anchor="middle">${lab[i]}</text>`;
+    });
+
+    const smaY = y(sma);
+    const smaLine = `<line x1="${padL}" y1="${smaY}" x2="${W-padR}" y2="${smaY}" stroke="var(--blue-lt)" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <text x="${padL+2}" y="${smaY-6}" fill="var(--blue-lt)" font-size="10" font-family="var(--mono)">SMA ${sma.toFixed(2)}</text>`;
+
+    let axis="";
+    [max, (max+min)/2, min].forEach(v=>{
+      axis += `<text x="${padL-8}" y="${y(v)+3}" fill="var(--muted)" font-size="9.5" font-family="var(--mono)" text-anchor="end">${v.toFixed(0)}</text>`;
+    });
+
+    $("chart").innerHTML = axis + smaLine + bars;
+  }
+
+  $("cur").addEventListener("input", recalc);
+  $("reset").addEventListener("click", ()=>{
+    closes = DEFAULT.closes.map(c=>[...c]);
+    $("cur").value = DEFAULT.cur;
+    buildCloseInputs();
+    recalc();
+  });
+
+  // init
+  $("asof").textContent = "Duomenys: " + DATA.asof;
+  $("cur").value = DATA.cur;
+  buildCloseInputs();
+  recalc();
+</script>
+</body>
+</html>
